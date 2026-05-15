@@ -28,10 +28,10 @@ func SetupRoutes(app *fiber.App, authCtrl *rest.AuthController, oauthCtrl *rest.
 	protected.Post("/logout-all", authCtrl.LogoutAll)
 
 	// Phone OTP Routes (ต้อง Login แล้ว)
-	protected.Post("/phone/send-otp", authCtrl.SendPhoneOTP)
-	protected.Post("/phone/verify-otp", authCtrl.VerifyPhoneOTP)
+	// protected.Post("/phone/send-otp", authCtrl.SendPhoneOTP)
+	// protected.Post("/phone/verify-otp", authCtrl.VerifyPhoneOTP)
 
 	// OAuth Routes
-	auth.Get("/:provider", oauthCtrl.RedirectToProvider)
-	auth.Get("/:provider/callback", oauthCtrl.HandleCallback)
+	// auth.Get("/:provider", oauthCtrl.RedirectToProvider)
+	// auth.Get("/:provider/callback", oauthCtrl.HandleCallback)
 }
