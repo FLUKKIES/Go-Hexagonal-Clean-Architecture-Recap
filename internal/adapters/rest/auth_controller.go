@@ -4,10 +4,11 @@ import (
 	"errors"
 
 	"github.com/FLUKKIES/Go-Hexagonal-Clean-Architecture-Recap.git/domain/exceptions"
+	"github.com/FLUKKIES/Go-Hexagonal-Clean-Architecture-Recap.git/domain/ports"
 	"github.com/FLUKKIES/Go-Hexagonal-Clean-Architecture-Recap.git/domain/requests"
 	"github.com/FLUKKIES/Go-Hexagonal-Clean-Architecture-Recap.git/domain/responses"
 	"github.com/FLUKKIES/Go-Hexagonal-Clean-Architecture-Recap.git/domain/usecases"
-	"github.com/FLUKKIES/Go-Hexagonal-Clean-Architecture-Recap.git/domain/ports"
+	"github.com/FLUKKIES/Go-Hexagonal-Clean-Architecture-Recap.git/internal/infrastructure/validator"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -27,6 +28,10 @@ func (c *AuthController) Register(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&req); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
 	}
+	if errs := validator.Validate(&req); errs != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "validation failed", "details": errs})
+	}
+
 	resp, err := c.usecase.Register(&req)
 	if err != nil {
 		return c.handleError(ctx, err)
@@ -40,6 +45,9 @@ func (c *AuthController) Login(ctx *fiber.Ctx) error {
 	var req requests.LoginRequest
 	if err := ctx.BodyParser(&req); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
+	}
+	if errs := validator.Validate(&req); errs != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "validation failed", "details": errs})
 	}
 	resp, err := c.usecase.Login(&req)
 	if err != nil {
@@ -106,6 +114,9 @@ func (c *AuthController) ForgotPassword(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&req); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
 	}
+	if errs := validator.Validate(&req); errs != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "validation failed", "details": errs})
+	}
 	// ส่ง response เหมือนกันเสมอ — ป้องกัน Email Enumeration Attack
 	_ = c.usecase.ForgotPassword(req.Email)
 	return ctx.JSON(fiber.Map{"message": "if this email exists, a reset link has been sent"})
@@ -116,6 +127,9 @@ func (c *AuthController) ResetPassword(ctx *fiber.Ctx) error {
 	var req requests.ResetPasswordRequest
 	if err := ctx.BodyParser(&req); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
+	}
+	if errs := validator.Validate(&req); errs != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "validation failed", "details": errs})
 	}
 	if err := c.usecase.ResetPassword(&req); err != nil {
 		return c.handleError(ctx, err)
@@ -128,6 +142,9 @@ func (c *AuthController) SendPhoneOTP(ctx *fiber.Ctx) error {
 	var req requests.SendOTPRequest
 	if err := ctx.BodyParser(&req); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
+	}
+	if errs := validator.Validate(&req); errs != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "validation failed", "details": errs})
 	}
 	if err := c.usecase.SendPhoneOTP(&req); err != nil {
 		return c.handleError(ctx, err)
@@ -144,6 +161,9 @@ func (c *AuthController) VerifyPhoneOTP(ctx *fiber.Ctx) error {
 	var req requests.VerifyOTPRequest
 	if err := ctx.BodyParser(&req); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
+	}
+	if errs := validator.Validate(&req); errs != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "validation failed", "details": errs})
 	}
 	if err := c.usecase.VerifyPhoneOTP(userID, &req); err != nil {
 		return c.handleError(ctx, err)
