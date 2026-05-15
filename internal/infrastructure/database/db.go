@@ -5,11 +5,10 @@ import (
 	"log"
 
 	"github.com/FLUKKIES/Go-Hexagonal-Clean-Architecture-Recap.git/configs"
-	"github.com/FLUKKIES/Go-Hexagonal-Clean-Architecture-Recap.git/internal/adapters/gormrepo/model"
+	"github.com/FLUKKIES/Go-Hexagonal-Clean-Architecture-Recap.git/domain/entities"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
-
 
 func ConnectDB(cfg *configs.Config) *gorm.DB {
 
@@ -25,11 +24,11 @@ func ConnectDB(cfg *configs.Config) *gorm.DB {
 
 	// Auto Migrate — เพิ่ม Model ใหม่ตรงนี้เมื่อมีตารางใหม่
 	if err := db.AutoMigrate(
-		&model.UserGormModel{},
-		&model.SessionGormModel{},
-		&model.OAuthAccountGormModel{},
-		&model.PasswordResetTokenGormModel{},
-		&model.PhoneOTPGormModel{},
+		&entities.User{},
+		&entities.Session{},
+		&entities.OAuthAccount{},
+		&entities.PasswordResetToken{},
+		&entities.PhoneOTP{},
 	); err != nil {
 		log.Fatal("Failed to auto migrate:", err)
 	}
