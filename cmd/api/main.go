@@ -30,6 +30,8 @@ func main() {
 	oauthRepo := gormrepo.NewOAuthRepositoryImpl(db)
 	resetTokenRepo := gormrepo.NewPasswordResetRepositoryImpl(db)
 	phoneOTPRepo := gormrepo.NewPhoneOTPRepositoryImpl(db)
+	eventRepo := gormrepo.NewEventRepositoryImpl(db)
+	eventParticipantRepo := gormrepo.NewEventParticipantRepositoryImpl(db)
 
 	// 4. สร้าง Infrastructure Services (External Services)
 	jwtSvc := jwtservice.NewJWTService(cfg.JWTSecret)
@@ -71,9 +73,12 @@ func main() {
 		},
 	)
 
+	eventUsecase := usecases.NewEventUsecase(eventRepo, eventParticipantRepo, userRepo)
+
 	// 7. สร้าง Controllers (REST Adapters)
 	authCtrl := rest.NewAuthController(authUsecase, jwtSvc)
 	oauthCtrl := rest.NewOAuthController(authUsecase)
+	eventCtrl := rest.NewEventController(eventUsecase)
 
 	// 8. ตั้งค่า Fiber App
 	app := fiber.New(fiber.Config{
@@ -81,7 +86,7 @@ func main() {
 	})
 
 	// 9. ผูก Routes พร้อม Inject Services
-	router.SetupRoutes(app, authCtrl, oauthCtrl, jwtSvc)
+	router.SetupRoutes(app, authCtrl, oauthCtrl, eventCtrl, jwtSvc)
 
 	// 10. เริ่มรัน Server
 	log.Printf("🚀 Server is running on port %s", cfg.AppPort)

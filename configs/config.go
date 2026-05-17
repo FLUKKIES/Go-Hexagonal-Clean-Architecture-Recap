@@ -17,8 +17,9 @@ type Config struct {
 	DBPassword string
 
 	// App
-	AppPort    string
-	AppBaseURL string // เช่น "https://myapp.com" (ใช้ใน Reset Password Link)
+	AppPort                string
+	AppBaseURL             string // เช่น "https://myapp.com" (ใช้ใน Reset Password Link)
+	InstanceConnectionName string // สำหรับเชื่อมต่อ Cloud SQL
 
 	// Auth Expiry
 	AccessTokenExpiry  time.Duration
@@ -66,8 +67,9 @@ func LoadConfig() *Config {
 		DBUsername: getEnv("DB_USERNAME", "postgres"),
 		DBPassword: getEnv("DB_PASSWORD", "postgres"),
 
-		AppPort:    getEnv("APP_PORT", "4001"),
-		AppBaseURL: getEnv("APP_BASE_URL", "http://localhost:4001"),
+		AppPort:                getEnv("APP_PORT", "4001"),
+		AppBaseURL:             getEnv("APP_BASE_URL", "http://localhost:4001"),
+		InstanceConnectionName: getEnv("INSTANCE_CONNECTION_NAME", ""),
 
 		AccessTokenExpiry:  getEnvAsDuration("ACCESS_TOKEN_EXPIRY", "15m"),
 		RefreshTokenExpiry: getEnvAsDuration("REFRESH_TOKEN_EXPIRY", "720h"), // 30 days

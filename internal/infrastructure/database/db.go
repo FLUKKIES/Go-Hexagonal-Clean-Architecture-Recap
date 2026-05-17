@@ -11,13 +11,30 @@ import (
 )
 
 func ConnectDB(cfg *configs.Config) *gorm.DB {
+	var connString string
 
-	connString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		cfg.DBHost, cfg.DBPort, cfg.DBUsername, cfg.DBPassword, cfg.DBName)
+	// สำหรับรันบน Cloud SQL
+	if cfg.InstanceConnectionName != "" {
+		connString = fmt.Sprintf(
+			"host=/cloudsql/%s dbname=%s user=%s password=%s sslmode=disable",
+			cfg.InstanceConnectionName,
+			cfg.DBName,
+			cfg.DBUsername,
+			cfg.DBPassword,
+		)
+	// สำหรับรันบนเครื่อง Local
+	} else {
+		connString = fmt.Sprintf(
+			"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+			cfg.DBHost,
+			cfg.DBPort,
+			cfg.DBUsername,
+			cfg.DBPassword,
+			cfg.DBName,
+		)
+	}
 
-	db, err := gorm.Open(postgres.Open(connString), &gorm.Config{
-		
-	})
+	db, err := gorm.Open(postgres.Open(connString), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
@@ -29,6 +46,8 @@ func ConnectDB(cfg *configs.Config) *gorm.DB {
 		&entities.OAuthAccount{},
 		&entities.PasswordResetToken{},
 		&entities.PhoneOTP{},
+		&entities.Event{},
+		&entities.EventParticipant{},
 	); err != nil {
 		log.Fatal("Failed to auto migrate:", err)
 	}

@@ -1,14 +1,14 @@
 package router
 
 import (
+	"github.com/FLUKKIES/Go-Hexagonal-Clean-Architecture-Recap.git/domain/entities"
 	"github.com/FLUKKIES/Go-Hexagonal-Clean-Architecture-Recap.git/domain/ports"
 	"github.com/FLUKKIES/Go-Hexagonal-Clean-Architecture-Recap.git/internal/adapters/rest"
 	"github.com/FLUKKIES/Go-Hexagonal-Clean-Architecture-Recap.git/internal/infrastructure/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 
-// SetupRoutes จัดการ Route ทั้งหมดของแอป แยกออกจาก main.go
-func SetupRoutes(app *fiber.App, authCtrl *rest.AuthController, oauthCtrl *rest.OAuthController, jwtService ports.IJWTService) {
+func SetupRoutes(app *fiber.App, authCtrl *rest.AuthController, oauthCtrl *rest.OAuthController, eventCtrl *rest.EventController, jwtService ports.IJWTService) {
 	api := app.Group("/api")
 
 	// Middleware
@@ -34,4 +34,14 @@ func SetupRoutes(app *fiber.App, authCtrl *rest.AuthController, oauthCtrl *rest.
 	// OAuth Routes
 	// auth.Get("/:provider", oauthCtrl.RedirectToProvider)
 	// auth.Get("/:provider/callback", oauthCtrl.HandleCallback)
+
+	// Event Routes
+	events := api.Group("/events")
+	events.Get("/", eventCtrl.ListEvents)
+	events.Get("/:id", eventCtrl.GetEventDetails)
+
+	// Protected Event Routes
+	protectedEvents := api.Group("/events", authMid)
+	protectedEvents.Post("/", middleware.RoleMiddleware(string(entities.UserRoleAdmin)), eventCtrl.CreateEvent)
+	protectedEvents.Post("/:id/join", middleware.RoleMiddleware(string(entities.UserRoleUser)), eventCtrl.JoinEvent)
 }

@@ -457,7 +457,7 @@ func (u *authUsecaseImpl) createSession(user *entities.User, userAgent, clientIP
 		TokenType:        "Bearer",
 		ExpiresIn:        int(u.config.AccessTokenExpiry.Seconds()),
 		RefreshExpiresIn: int(u.config.RefreshTokenExpiry.Seconds()),
-		User:             toUserResponse(user),
+		User:             responses.ToUserResponse(user),
 	}, nil
 }
 
@@ -486,16 +486,3 @@ func generateNumericOTP(digits int) (string, error) {
 	return fmt.Sprintf("%0*d", digits, n), nil
 }
 
-// toUserResponse แปลง User Entity เป็น UserResponse DTO
-func toUserResponse(user *entities.User) responses.UserResponse {
-	return responses.UserResponse{
-		ID:          user.ID.String(),
-		FirstName:   user.FirstName,
-		LastName:    user.LastName,
-		Email:       user.Email,
-		PhoneNumber: user.PhoneNumber,
-		ProfileUrl:  user.ProfileUrl,
-		Role:        string(user.Role),
-		IsVerified:  user.VerifiedAt != nil,
-	}
-}

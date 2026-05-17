@@ -2,6 +2,7 @@ package validator
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
@@ -12,6 +13,15 @@ var validate *validator.Validate
 // Initialize the validator instance automatically when the package is loaded
 func init() {
 	validate = validator.New()
+	
+	// ใช้ชื่อ json tag เป็นชื่อ field ในข้อความ error
+	validate.RegisterTagNameFunc(func(fld reflect.StructField) string {
+		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
+		if name == "-" {
+			return ""
+		}
+		return name
+	})
 }
 
 // ErrorResponse represents the detailed validation error for a specific field
@@ -29,7 +39,7 @@ func ValidateStruct(data interface{}) []*ErrorResponse {
 	if err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
 			var element ErrorResponse
-			element.FailedField = strings.ToLower(err.Field())
+			element.FailedField = err.Field()
 			element.Tag = err.Tag()
 			element.Value = err.Param()
 
